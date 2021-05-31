@@ -1,15 +1,8 @@
-/*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
-Secondary view controller used to display the map and found annotations.
-*/
-
 import UIKit
 import MapKit
 
 class MapViewController: UIViewController {
-    
+    var selectedAnnotation: PlaceAnnotation?
     private enum AnnotationReuseID: String {
         case pin
     }
@@ -18,7 +11,8 @@ class MapViewController: UIViewController {
     
     var mapItems: [MKMapItem]?
     var boundingRegion: MKCoordinateRegion?
-
+    var places = [Place]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -52,11 +46,12 @@ class MapViewController: UIViewController {
         // Turn the array of MKMapItem objects into an annotation with a title and URL that can be shown on the map.
         let annotations = mapItems.compactMap { (mapItem) -> PlaceAnnotation? in
             guard let coordinate = mapItem.placemark.location?.coordinate else { return nil }
-            
+     
             let annotation = PlaceAnnotation(coordinate: coordinate)
             annotation.title = mapItem.name
             annotation.url = mapItem.url
-            
+            annotation.phone = mapItem.phoneNumber
+            annotation.coordinate = coordinate
             return annotation
         }
         mapView.addAnnotations(annotations)
@@ -89,6 +84,23 @@ extension MapViewController: MKMapViewDelegate {
         guard let annotation = view.annotation as? PlaceAnnotation else { return }
         if let url = annotation.url {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+    }
+    
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        selectedAnnotation = view.annotation as? PlaceAnnotation
+        let detailsController = DetailsController()
+        let query: [String: String] = [
+            "latitude": String((selectedAnnotation?.coordinate.latitude)!),
+            "longitude": String((selectedAnnotation?.coordinate.longitude)!),
+            "term": (selectedAnnotation?.title)!]
+        APIService.shared.fetchBusinesses(matching: query) { (places) in
+            DispatchQueue.main.async {
+                self.places = places!
+                let business = Business(name: self.selectedAnnotation?.title, coordinates: self.selectedAnnotation?.coordinate, url: self.selectedAnnotation?.url, phone:self.selectedAnnotation?.phone, imageURL: self.places[0].imageUrl)
+                    detailsController.business = business
+                self.navigationController?.pushViewController(detailsController, animated: true)
+            }
         }
     }
 }

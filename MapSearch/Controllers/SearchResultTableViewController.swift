@@ -1,6 +1,4 @@
 /*
-See LICENSE folder for this sample’s licensing information.
-
 Abstract:
 Primary view controller used to display search results.
 */
@@ -75,8 +73,7 @@ class SearchResultTableViewController: UITableViewController {
         searchController.searchBar.delegate = self
         
         /*
-         Search is presenting a view controller, and needs the presentation context to be defined by a controller in the
-         presented view controller hierarchy.
+         Search is presenting a view controller, and needs the presentation context to be defined by a controller in the presented view controller hierarchy.
          */
         definesPresentationContext = true
     }
@@ -288,9 +285,6 @@ extension SearchResultTableViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
         dismiss(animated: true, completion: nil)
-        
-        // The user tapped search on the `UISearchBar` or on the keyboard. Since they didn't
-        // select a row with a suggested completion, run the search with the query text in the search field.
         search(for: searchBar.text)
     }
 }
