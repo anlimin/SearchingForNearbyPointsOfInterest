@@ -6,7 +6,6 @@
 //  Copyright © 2021 Apple. All rights reserved.
 //
 import Foundation
-import Alamofire
 
 struct SearchResults: Codable {
     let total: Int
